@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.8.0"><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description" content="我的个人博客"><title>InjectIII-Xcode高效神器 | 意涵的博客</title><link rel="stylesheet" type="text/css" href="/css/style.css?v=0.0.0"><link rel="stylesheet" type="text/css" href="//lib.baomitu.com/normalize/8.0.1/normalize.min.css"><link rel="stylesheet" type="text/css" href="//lib.baomitu.com/pure/1.0.0/pure-min.css"><link rel="stylesheet" type="text/css" href="//lib.baomitu.com/pure/1.0.0/grids-responsive-min.css"><link rel="stylesheet" href="//lib.baomitu.com/font-awesome/4.7.0/css/font-awesome.min.css"><script type="text/javascript" src="//lib.baomitu.com/jquery/3.3.1/jquery.min.js"></script><link rel="icon" mask="" sizes="any" href="/favicon.ico"><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">InjectIII-Xcode高效神器</h1><a id="logo" href="/.">意涵的博客</a><p class="description">记录足迹👣</p></div><div id="nav-menu"><a class="current" href="/."><i class="fa fa-home"> 首页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a></div></div><div class="pure-g" id="layout"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">InjectIII-Xcode高效神器</h1><div class="post-meta">Mar 9, 2019</div><a class="disqus-comment-count" data-disqus-identifier="2019/03/09/InjectIII-Xcode高效神器/" href="/2019/03/09/InjectIII-Xcode高效神器/#disqus_thread"></a><div class="post-content"><p>iOS 日常开发中，经常需要微调界面，每次微调都需要重新编译，效率低下。</p>
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.8.0"><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description" content="我的个人博客"><title>InjectIII-Xcode高效神器 | 意涵的博客</title><link rel="stylesheet" type="text/css" href="/css/style.css?v=0.0.0"><link rel="stylesheet" type="text/css" href="//lib.baomitu.com/normalize/8.0.1/normalize.min.css"><link rel="stylesheet" type="text/css" href="//lib.baomitu.com/pure/1.0.0/pure-min.css"><link rel="stylesheet" type="text/css" href="//lib.baomitu.com/pure/1.0.0/grids-responsive-min.css"><link rel="stylesheet" href="//lib.baomitu.com/font-awesome/4.7.0/css/font-awesome.min.css"><script type="text/javascript" src="//lib.baomitu.com/jquery/3.3.1/jquery.min.js"></script><link rel="icon" mask="" sizes="any" href="/favicon.ico"><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">InjectIII-Xcode高效神器</h1><a id="logo" href="/.">意涵的博客</a><p class="description">记录足迹👣</p></div><div id="nav-menu"><a class="current" href="/."><i class="fa fa-home"> 首页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a></div></div><div class="pure-g" id="layout"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">InjectIII-Xcode高效神器</h1><div class="post-meta">Mar 9, 2019<script src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script><span id="busuanzi_container_page_pv"> | <span id="busuanzi_value_page_pv"></span><span> 阅读</span></span></div><a class="disqus-comment-count" data-disqus-identifier="2019/03/09/InjectIII-Xcode高效神器/" href="/2019/03/09/InjectIII-Xcode高效神器/#disqus_thread"></a><div class="post-content"><p>iOS 日常开发中，经常需要微调界面，每次微调都需要重新编译，效率低下。</p>
 <p>InjectionIII 是一款 Xcode 插件，支持热重载，也就是说不需要重新运行，即可看到修改效果，大大提高开发效率。</p>
 <p>效果如下：</p>
 <img src="/2019/03/09/InjectIII-Xcode高效神器/intro.gif" title="intro.gif">
@@ -44,7 +44,7 @@ type: 'GET',
 success: function(){
   var d = document;
   var s = d.createElement('script');
-  s.src = '//ppwake.disqus.com/embed.js';
+  s.src = '//https-ppwake-github-io.disqus.com/embed.js';
   s.setAttribute('data-timestamp', + new Date());
   (d.head || d.body).appendChild(s);
   $('.disqus_click_btn').css('display', 'none');
@@ -56,7 +56,7 @@ error: function() {
     (() => { // DON'T EDIT BELOW THIS LINE
         var d = document;
         var s = d.createElement('script');
-        s.src = '//ppwake.disqus.com/embed.js';
+        s.src = '//https-ppwake-github-io.disqus.com/embed.js';
         s.setAttribute('data-timestamp', + new Date());
         (d.head || d.body).appendChild(s);
     })();
@@ -70,7 +70,7 @@ error: function() {
          $('.post-meta .post-comments-count').show();
          var s = document.createElement('script');
          s.id = 'dsq-count-scr';
-         s.src = 'https://ppwake.disqus.com/count.js';
+         s.src = 'https://https-ppwake-github-io.disqus.com/count.js';
          s.async = true;
          (document.head || document.body).appendChild(s);
        }
