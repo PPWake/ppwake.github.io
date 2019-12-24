@@ -1,0 +1,283 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.8.0"><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description" content="我的个人博客"><title> | 意涵的博客</title><link rel="stylesheet" type="text/css" href="/css/style.css?v=0.0.0"><link rel="stylesheet" type="text/css" href="//lib.baomitu.com/normalize/8.0.1/normalize.min.css"><link rel="stylesheet" type="text/css" href="//lib.baomitu.com/pure/1.0.0/pure-min.css"><link rel="stylesheet" type="text/css" href="//lib.baomitu.com/pure/1.0.0/grids-responsive-min.css"><link rel="stylesheet" href="//lib.baomitu.com/font-awesome/4.7.0/css/font-awesome.min.css"><script type="text/javascript" src="//lib.baomitu.com/jquery/3.3.1/jquery.min.js"></script><link rel="icon" mask="" sizes="any" href="/favicon.ico"><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">意涵的博客</h1><a id="logo" href="/.">意涵的博客</a><p class="description">记录足迹👣</p></div><div id="nav-menu"><a class="current" href="/."><i class="fa fa-home"> 首页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a></div></div><div class="pure-g" id="layout"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title"></h1><div class="post-meta">Dec 23, 2019<script src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script><span id="busuanzi_container_page_pv"> | <span id="busuanzi_value_page_pv"></span><span> 阅读</span></span></div><a class="disqus-comment-count" data-disqus-identifier="2019/12/23/初识LLVM/" href="/2019/12/23/初识LLVM/#disqus_thread"></a><div class="post-content"><p>title: 初识 LLVM<br>date: 2019-12-23 10:29:35<br>tags:LLVM，编译器</p>
+<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>本文只是简单的入门介绍，有兴趣深入的朋友请阅读官方文档。</p>
+<p>下面是我读过的一些文档，汇总如下：</p>
+<ul>
+<li>了解 LLVM 是什么，基本架构模块，IR 是什么，pass 的作用<ul>
+<li>阅读 <a href="http://llvm.org" target="_blank" rel="noopener">LLVM Overview </a> 了解 LLVM 的模块划分以及各模块基本功能。</li>
+<li>阅读 <a href="http://www.aosabook.org/en/llvm.html" target="_blank" rel="noopener">The Architecture of Open Source Applications</a> 了解 LLVM 的架构</li>
+</ul>
+</li>
+<li>编译 <ul>
+<li>阅读 <a href="http://clang.llvm.org/get_started.html" target="_blank" rel="noopener">get_started</a> 了解如何编译 LLVM</li>
+<li>阅读 <a href="http://llvm.org/docs/CMake.html" target="_blank" rel="noopener">llvm cmake 参数</a> 了解编译时 cmake 参数的含义</li>
+<li>阅读 <a href="https://llvm.org/docs/CMakePrimer.html" target="_blank" rel="noopener">CMake 简介</a> 了解 CMake 语法</li>
+</ul>
+</li>
+<li>上手 pass，IR<ul>
+<li>根据 <a href="https://llvm.org/docs/WritingAnLLVMPass.html" target="_blank" rel="noopener">writing an LLVM pass</a> 上手尝试，了解 pass 的使用流程</li>
+<li><a href="http://llvm.org/docs/ProgrammersManual.html" target="_blank" rel="noopener">ProgrammersManual</a> 阅读开发手册了解编写 pass 可能涉及到的 API</li>
+<li><a href="http://llvm.org/docs/LangRef.html#binary-operations" target="_blank" rel="noopener">IR 手册</a> 略读 IR 手册，了解 IR 的基本特征</li>
+</ul>
+</li>
+<li>其他参考资料<ul>
+<li><a href="https://llvm.comptechs.cn" target="_blank" rel="noopener">LLVM 中文网</a></li>
+<li><a href="http://www.alonemonkey.com/2017/06/02/writing-an-llvm-pass/" target="_blank" rel="noopener">Xcode调试一个LLVM Pass</a></li>
+<li><a href="https://www.leadroyal.cn/?p=645" target="_blank" rel="noopener">LeadroyaL’s llvm 系列文章</a></li>
+</ul>
+</li>
+<li>日常查阅<ul>
+<li><a href="http://llvm.org/docs/CMake.html" target="_blank" rel="noopener">llvm cmake 参数</a> </li>
+<li><a href="http://llvm.org/docs/LangRef.html#binary-operations" target="_blank" rel="noopener">IR 手册</a> </li>
+<li><a href="http://llvm.org/docs/CommandGuide/index.html" target="_blank" rel="noopener">LLVM command guide</a> llvm-as, llvm-dis, opt 等命令的使用说明</li>
+</ul>
+</li>
+</ul>
+<h2 id="0x0-LLVM-架构简介"><a href="#0x0-LLVM-架构简介" class="headerlink" title="0x0: LLVM 架构简介"></a>0x0: LLVM 架构简介</h2><h4 id="经典的三段式设计"><a href="#经典的三段式设计" class="headerlink" title="经典的三段式设计"></a>经典的三段式设计</h4><p>LLVM，GCC， JIT(Java, Python) 等编译器都遵循经典的三段式设计</p>
+<p><img src="https://raw.githubusercontent.com/PPWake/mygitpic/master/tree_phrase_build.png" alt=""></p>
+<ul>
+<li><p>前端 (Frontend) - 词法分析，语法分析,  生成抽象语法树，生成中间语言 (例如 java 的字节码，llvm 的 IR，GCC 的 GIMPLE Tuples)</p>
+</li>
+<li><p>优化器 (Optimizer) - 分析中间语言，避免多余的计算，提高性能;</p>
+</li>
+<li><p>后端 (Backend) - 根据中间语言，生成对应的 CPU 架构指令 例如 X86，ARM；</p>
+</li>
+</ul>
+<p>通过这种设计，增加新的语言，只需要实现新的 Frontend，Optimizer 和 Backend 可以重用；同理新增新的 CPU 架构时，也只需要实现新的 Backend。</p>
+<p><img src="https://raw.githubusercontent.com/PPWake/mygitpic/master/Implications%20of%20this%20Design.png" alt=""></p>
+<h4 id="LLVM-的优势"><a href="#LLVM-的优势" class="headerlink" title="LLVM 的优势"></a>LLVM 的优势</h4><p>LLVM，GCC，JIT 都采用三段式设计，LLVM 的优势在哪里 ？</p>
+<p>GCC，JIT 存在的问题：</p>
+<ul>
+<li><p>GCC 的问题 </p>
+<ul>
+<li>古老，模块化不够 (GCC 是个整体，无法独立使用)。</li>
+</ul>
+</li>
+<li><p>JIT 的问题</p>
+<ul>
+<li>强制 JIT 编译，垃圾回收以及使用非常特殊的对象模型；在编译与该模型不完全匹配的语言（例如C）时，性能欠佳。(我也不懂 😊)</li>
+</ul>
+</li>
+</ul>
+<p>LLVM 的优势：</p>
+<ul>
+<li><p>良好的模块化</p>
+</li>
+<li><p>严格定义语义的中间语言 IR</p>
+</li>
+<li><p><a href="https://www.kanxue.com/book-37-410.html" target="_blank" rel="noopener"> 更多请参考</a></p>
+</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/PPWake/mygitpic/master/LLVMCompiler1.png" alt=""></p>
+<h2 id="0x2-编译-LLVM"><a href="#0x2-编译-LLVM" class="headerlink" title="0x2: 编译 LLVM"></a>0x2: 编译 LLVM</h2><ol>
+<li><p>前置要求 </p>
+<p>cmake, python, 可以通过 homebrew 来安装</p>
+<p>详细要求参考 <a href="https://llvm.org/docs/GettingStarted.html#requirements" target="_blank" rel="noopener">Getting Started with the LLVM System - Requirements</a></p>
+</li>
+<li><p>检出 LLVM 工程</p>
+<figure class="highlight crmsh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git <span class="keyword">clone</span> <span class="title">--depth</span>=<span class="number">1</span> https://github.com/llvm/llvm-project.git</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>编译 LLVM 和 Clang</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">cd llvm-project</span><br><span class="line">mkdir build_with_ninja</span><br><span class="line">cd build_with_ninja</span><br><span class="line">cmake -DCMAKE_BUILD_TYPE=Release -DLLVM_ENABLE_ASSERTIONS=ON -DLLVM_ENABLE_PROJECTS="clang;clang-tools-extra;compiler-rt" -G Ninja ../llvm</span><br><span class="line">ninja</span><br></pre></td></tr></table></figure>
+<ul>
+<li>-DCMAKE_BUILD_TYPE=Release<ul>
+<li>默认 Debug，设置为 Release 可以减少硬盘空间的占用</li>
+</ul>
+</li>
+<li>-DLLVM_ENABLE_ASSERTIONS=ON<ul>
+<li>Debug 下默认 YES，其他 NO</li>
+</ul>
+</li>
+<li>-DCMAKE_INSTALL_PREFIX=directory<ul>
+<li>不指定，默认安装在 build_with_ninja 的 bin 目录下</li>
+</ul>
+</li>
+<li>-G 参数说明：<ul>
+<li>Ninja - 推荐，编译速度更快<ul>
+<li>安装方式- brew install ninja</li>
+</ul>
+</li>
+<li>Unix Makefiles -  通过  make 来编译</li>
+<li>Visual Studio，Xcode - 方便调试</li>
+</ul>
+</li>
+</ul>
+<ol start="4">
+<li><p>测试是否成功</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cd bin</span><br><span class="line">./clang --help</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+</li>
+</ol>
+<h2 id="0x3-Clang-命令"><a href="#0x3-Clang-命令" class="headerlink" title="0x3. Clang 命令"></a>0x3. Clang 命令</h2><ol>
+<li><p>首先创建一个名为 “hello.c” 的 C 文件</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"hello world\n"</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;	</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>预编译</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">clang hello.c -E</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>词法分析，导出 token</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">clang -fsyntax-only -Xclang -dump-tokens hello.c</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>语法分析, 导出抽象语法树</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">clang -fsyntax-only -Xclang -ast-dump hello.c</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>编译为可执行文件</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">clang hello.c -o hello</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>编译为 bitcode </p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">clang -o3 -emit-llvm hello.c -c -o hello.bc</span><br></pre></td></tr></table></figure>
+<p>-emit-llvm 搭配 -S 或者 -c 选项可以生成 LLVM  .ll  或者 .bc 文件，.ll, .bc 都是 LLVM IR 格式，它们的区别是 .ll 是可读的，而 .bc 不可读。</p>
+</li>
+<li><p>运行程序,  输出 hello world</p>
+</li>
+<li><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./hello</span><br></pre></td></tr></table></figure>
+<p>运行 bitcode</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">lli hello.bc</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>使用 llvm-dis 查看 .bc 文件</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">llvm-dis &lt; hello.bc | less</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>将 LLVM 中间文件 (.ll 或者 .bc) 编译为汇编文件</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">llc hello.ll -o hello.s</span><br></pre></td></tr></table></figure>
+<p>或者</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">llc</span> <span class="selector-tag">hello</span><span class="selector-class">.bc</span> <span class="selector-tag">-o</span> <span class="selector-tag">hello</span><span class="selector-class">.s</span></span><br></pre></td></tr></table></figure>
+<p>也可以使用 clang</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">clang hello.bc -S hello.s</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>生成可执行文件</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">clang hello.s -o hello</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>常见错误</p>
+<ol>
+<li>找不到头文件</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">fatal error: 'stdio.h' file not found</span><br><span class="line"><span class="meta">#</span><span class="bash">include &lt;stdio.h&gt;</span></span><br><span class="line">         ^~~~~~~~~</span><br><span class="line">1 error generated.</span><br></pre></td></tr></table></figure>
+<p>通过 -I 指定头文件路径</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">clang -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.15.sdk/usr/include ...</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<h2 id="0x4-上手-Pass"><a href="#0x4-上手-Pass" class="headerlink" title="0x4. 上手 Pass"></a>0x4. 上手 Pass</h2><h4 id="pass-是什么？"><a href="#pass-是什么？" class="headerlink" title="pass 是什么？"></a>pass 是什么？</h4><p>一系列优化 和 转换 LLVM IR 的 C++ 代码， 主要流程如下：</p>
+<p><img src="https://raw.githubusercontent.com/PPWake/mygitpic/master/pass.png" alt=""></p>
+<p>几个概念:</p>
+<p>Module, Function, BasicBlock, Instruction, Value</p>
+<ul>
+<li><p>Module: 代表一个目标文件<code>.o</code>，包含 Function, 全局变量等</p>
+<p>可以遍历 Module 得到 Function</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (Module::iterator iter = M.begin(); iter != M.end(); iter++) &#123;</span><br><span class="line">  Function *F = &amp;(*iter);</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>Function：包含若干 BasicBlock</p>
+</li>
+<li><p>BasicBlock：包含若干 Instruction</p>
+</li>
+<li><p>Instruction:  包含操作，Value</p>
+<p>add 是操作，其他为 Value；</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">%1 = add i32 %a, %b</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>Value：大部分对象都可以看成 Value，包括常量，参数，指令，函数</p>
+</li>
+</ul>
+<h4 id="在-LLVM-源码目录外开发-Pass"><a href="#在-LLVM-源码目录外开发-Pass" class="headerlink" title="在 LLVM 源码目录外开发 Pass"></a>在 LLVM 源码目录外开发 Pass</h4><p>为方便表述，简称 “外部 pass”，外部 pass 比较灵活，不用修改 LLVM 源码配置；</p>
+<p>尝试制作一个打印函数名的简单 Pass，步骤如下: </p>
+<ol>
+<li><p>新建 outpasses</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> llvm-project 同级目录</span></span><br><span class="line">cd ../..</span><br><span class="line">mkdir outpasses</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>创建如下目录</p>
+<figure class="highlight 1c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">outpasses/</span><br><span class="line">    <span class="string">|</span></span><br><span class="line">    CMakeLists.txt</span><br><span class="line">    PrintFunctions/</span><br><span class="line">        <span class="string">|</span></span><br><span class="line">        CMakeLists.txt</span><br><span class="line">        PrintFunctions.cpp</span><br><span class="line">        ...</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>outpasses / CMakeLists.txt 内容如下：</p>
+<p>配置 LLVM_DIR -  LLVM_DIR 为 LLVM 编译时的安装目录</p>
+<figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">cmake_minimum_required</span>(VERSION <span class="number">3.4</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">set</span>(ENV&#123;LLVM_DIR&#125; ~/llvm/llvm-<span class="keyword">project</span>/build_with_ninja/lib/cmake/llvm)</span><br><span class="line"></span><br><span class="line"><span class="keyword">find_package</span>(LLVM REQUIRED CONFIG)</span><br><span class="line"><span class="keyword">add_definitions</span>(<span class="variable">$&#123;LLVM_DEFINITIONS&#125;</span>)</span><br><span class="line"><span class="keyword">include_directories</span>(<span class="variable">$&#123;LLVM_INCLUDE_DIRS&#125;</span>)</span><br><span class="line"><span class="keyword">link_directories</span>(<span class="variable">$&#123;LLVM_LIBRARY_DIRS&#125;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># add c++ 14 to solve "error: unknown type name 'constexpr'"</span></span><br><span class="line"><span class="keyword">add_compile_options</span>(-std=c++<span class="number">14</span>)</span><br><span class="line"><span class="keyword">add_subdirectory</span>(PrintFunctions)  <span class="comment"># Use your pass name here.</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>PrintFunctions/CMakeLists.txt 内容如下：</p>
+<figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">add_library</span>(PrintFunctions MODULE</span><br><span class="line">  <span class="comment"># List your source files here.</span></span><br><span class="line">  printFunctions.cpp</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment"># LLVM is (typically) built with no C++ RTTI. We need to match that;</span></span><br><span class="line"><span class="comment"># otherwise, we'll get linker errors about missing RTTI data.</span></span><br><span class="line"><span class="keyword">set_target_properties</span>(PrintFunctions PROPERTIES</span><br><span class="line">  COMPILE_FLAGS <span class="string">"-fno-rtti"</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Get proper shared-library behavior (where symbols are not necessarily</span></span><br><span class="line"><span class="comment"># resolved when the shared library is linked) on OS X.</span></span><br><span class="line"><span class="keyword">if</span>(APPLE)</span><br><span class="line">  <span class="keyword">set_target_properties</span>(PrintFunctions PROPERTIES</span><br><span class="line">    LINK_FLAGS <span class="string">"-undefined dynamic_lookup"</span></span><br><span class="line">  )</span><br><span class="line"><span class="keyword">endif</span>(APPLE)</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>PrintFunctions/printFunctions.cpp 内容如下：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"llvm/Pass.h"</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"llvm/IR/Function.h"</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"llvm/Support/raw_ostream.h"</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"llvm/IR/LegacyPassManager.h"</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"llvm/Transforms/IPO/PassManagerBuilder.h"</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> llvm;</span><br><span class="line"></span><br><span class="line"><span class="keyword">namespace</span> &#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">Hello</span> :</span> <span class="keyword">public</span> FunctionPass &#123;</span><br><span class="line">        <span class="keyword">static</span> <span class="keyword">char</span> ID;</span><br><span class="line">        Hello() : FunctionPass(ID) &#123;&#125;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">virtual</span> <span class="keyword">bool</span> <span class="title">runOnFunction</span><span class="params">(Function &amp;F)</span> </span>&#123;</span><br><span class="line">            errs() &lt;&lt; <span class="string">"I saw a function called "</span> &lt;&lt; F.getName() &lt;&lt; <span class="string">"!\n"</span>;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Automatically enable the pass.</span></span><br><span class="line"><span class="keyword">char</span> Hello::ID = <span class="number">0</span>;</span><br><span class="line"><span class="keyword">static</span> RegisterPass&lt;Hello&gt; X(<span class="string">"hello"</span>, <span class="string">"Hello World Pass"</span>,</span><br><span class="line">                            <span class="literal">false</span> <span class="comment">/* Only looks at CFG */</span>,</span><br><span class="line">                            <span class="literal">false</span> <span class="comment">/* Analysis Pass */</span>);</span><br><span class="line"><span class="function"><span class="keyword">static</span> RegisterStandardPasses <span class="title">Y</span><span class="params">(</span></span></span><br><span class="line"><span class="function"><span class="params">    PassManagerBuilder::EP_EarlyAsPossible,</span></span></span><br><span class="line"><span class="function"><span class="params">    [](<span class="keyword">const</span> PassManagerBuilder &amp;Builder,</span></span></span><br><span class="line"><span class="function"><span class="params">        legacy::PassManagerBase &amp;PM) &#123; PM.add(<span class="keyword">new</span> Hello()); &#125;)</span></span>;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>编译 pass 得到 libPrintFunctions.so</p>
+<figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">cd</span> outpasses</span><br><span class="line">cmake .</span><br><span class="line"><span class="keyword">make</span></span><br></pre></td></tr></table></figure>
+<p>libPrintFunctions.so 在 PrintFunctions 文件夹中</p>
+</li>
+<li><p>通过 clang 加载 pass</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cd llvm-project</span><br><span class="line">./build_with_ninja/bin/clang -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.15.sdk/usr/include  -Xclang -load -Xclang ../outpasses/PrintFunctions/libPrintFunctions.so ../llvmtest/test.c</span><br></pre></td></tr></table></figure>
+<p>test.c 内容如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> a = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">if</span> ( a = <span class="number">1</span>) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"123"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>输出：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">I saw a function called main!</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>也可以通过 opt 来加载 pass</p>
+<p>生成 bitcode</p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">.<span class="regexp">/build_with_ninja/</span>bin<span class="regexp">/clang  -I/</span>Applications<span class="regexp">/Xcode.app/</span>Contents<span class="regexp">/Developer/</span>Platforms<span class="regexp">/MacOSX.platform/</span>Developer<span class="regexp">/SDKs/</span>MacOSX10.<span class="number">15</span>.sdk<span class="regexp">/usr/i</span>nclude -o3 -emit-llvm test.c -c -o test.bc</span><br></pre></td></tr></table></figure>
+<p>opt -hello 开启 pass</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./build_with_ninja/bin/opt -load ../outpasses/PrintFunctions/libPrintFunctions.so -hello &lt; ../llvmtest/test.bc</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<h4 id="Pass-和-PassManager-的关系"><a href="#Pass-和-PassManager-的关系" class="headerlink" title="Pass 和 PassManager 的关系"></a>Pass 和 PassManager 的关系</h4><p>PassManager 管理 Pass，解决多个 Pass 依赖，传值等问题，例如 PassA 需要等待 PassB 执行完成后才执行；</p>
+<p>Pass 需要注册到 PassManager 中：</p>
+<ol>
+<li><p>注册到 opt 中,  hello 命令行可选参数，“Hello World Pass” 帮助说明</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"># 注册到 opt 中，</span><br><span class="line"><span class="keyword">static</span> RegisterPass&lt;Hello&gt; X(<span class="string">"hello"</span>, <span class="string">"Hello World Pass"</span>,</span><br><span class="line">                             <span class="literal">false</span> <span class="comment">/* Only looks at CFG */</span>,</span><br><span class="line">                             <span class="literal">false</span> <span class="comment">/* Analysis Pass */</span>);</span><br></pre></td></tr></table></figure>
+<p>通过 opt -hello 来使用 HelloPass</p>
+<figure class="highlight crystal"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">opt -load <span class="class"><span class="keyword">lib</span>/<span class="title">LLVMHello</span>.<span class="title">so</span> -<span class="title">hello</span> &lt; <span class="title">hello</span>.<span class="title">bc</span> &gt; /<span class="title">dev</span>/<span class="title">null</span></span></span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<ol start="2">
+<li><p>注册到标准编译流程中，默认会执行 HelloPass，例如通过 clang 调用</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> llvm::<span class="function">RegisterStandardPasses <span class="title">Y</span><span class="params">(</span></span></span><br><span class="line"><span class="function"><span class="params">    llvm::PassManagerBuilder::EP_EarlyAsPossible,</span></span></span><br><span class="line"><span class="function"><span class="params">    [](<span class="keyword">const</span> llvm::PassManagerBuilder &amp;Builder,</span></span></span><br><span class="line"><span class="function"><span class="params">       llvm::legacy::PassManagerBase &amp;PM) &#123; PM.add(<span class="keyword">new</span> Hello()); &#125;)</span></span>;</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<h4 id="移植到-LLVM-源码目录"><a href="#移植到-LLVM-源码目录" class="headerlink" title="移植到 LLVM 源码目录"></a>移植到 LLVM 源码目录</h4><ol>
+<li>拷贝 PrintFunctions 目录到 LLVM 源码目录的 lib/Transform 目录下</li>
+<li><p>在 lib/Transform/CMakeLists.txt 中新增 add_subdirectory(PrintFunctions)</p>
+</li>
+<li><p>重新编译，可以得到 libPrintFunctions.so</p>
+</li>
+</ol>
+<h4 id="通过-Xcode-调试-Pass"><a href="#通过-Xcode-调试-Pass" class="headerlink" title="通过 Xcode 调试 Pass"></a>通过 Xcode 调试 Pass</h4><p>请参考 <a href="http://www.alonemonkey.com/2017/06/02/writing-an-llvm-pass/" target="_blank" rel="noopener">Xcode调试一个LLVM Pass</a></p>
+</div><div class="tags"></div><div class="post-nav"><a class="pre" href="/2019/12/23/面向对象编程小记/">面向对象编程小记</a><a class="next" href="/2019/12/13/async-await/">async/await</a></div><div id="disqus_thread"><div class="btn_click_load"><button class="disqus_click_btn">阅读评论（请确保 Disqus 可以正常加载）</button></div><script type="text/javascript">var disqus_config = function () {
+    this.page.url = 'http://yoursite.com/2019/12/23/初识LLVM/';
+    this.page.identifier = '2019/12/23/初识LLVM/';
+    this.page.title = '';
+  };</script><script type="text/javascript" id="disqus-lazy-load-script">$.ajax({
+url: 'https://disqus.com/next/config.json',
+timeout: 2500,
+type: 'GET',
+success: function(){
+  var d = document;
+  var s = d.createElement('script');
+  s.src = '//https-ppwake-github-io.disqus.com/embed.js';
+  s.setAttribute('data-timestamp', + new Date());
+  (d.head || d.body).appendChild(s);
+  $('.disqus_click_btn').css('display', 'none');
+},
+error: function() {
+  $('.disqus_click_btn').css('display', 'block');
+}
+});</script><script type="text/javascript" id="disqus-click-load">$('.btn_click_load').click(() => {  //click to load comments
+    (() => { // DON'T EDIT BELOW THIS LINE
+        var d = document;
+        var s = d.createElement('script');
+        s.src = '//https-ppwake-github-io.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', + new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+    $('.disqus_click_btn').css('display','none');
+});</script><script type="text/javascript" id="disqus-count-script">$(function() {
+     var xhr = new XMLHttpRequest();
+     xhr.open('GET', '//disqus.com/next/config.json', true);
+     xhr.timeout = 2500;
+     xhr.onreadystatechange = function () {
+       if (xhr.readyState === 4 && xhr.status === 200) {
+         $('.post-meta .post-comments-count').show();
+         var s = document.createElement('script');
+         s.id = 'dsq-count-scr';
+         s.src = 'https://https-ppwake-github-io.disqus.com/count.js';
+         s.async = true;
+         (document.head || document.body).appendChild(s);
+       }
+     };
+     xhr.ontimeout = function () { xhr.abort(); };
+     xhr.send(null);
+   });
+</script></div></div></div></div><div class="pure-u-1-4 hidden_mid_and_down"><div id="sidebar"><div class="widget"><form class="search-form" action="//www.google.com/search" method="get" accept-charset="utf-8" target="_blank"><input type="text" name="q" maxlength="20" placeholder="Search"><input type="hidden" name="sitesearch" value="http://yoursite.com"></form></div><div class="widget"><div class="widget-title"><i class="fa fa-folder-o"> 分类</i></div></div><div class="widget"><div class="widget-title"><i class="fa fa-star-o"> 标签</i></div><div class="tagcloud"><a href="/tags/Xcode/" style="font-size: 15px;">Xcode</a> <a href="/tags/async-await/" style="font-size: 15px;">async/await</a> <a href="/tags/wwdc-swift/" style="font-size: 15px;">wwdc swift</a> <a href="/tags/面试题/" style="font-size: 15px;">面试题</a> <a href="/tags/TLS/" style="font-size: 15px;">TLS</a> <a href="/tags/面向对象编程/" style="font-size: 15px;">面向对象编程</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-file-o"> 最近文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2019/12/23/面向对象编程小记/">面向对象编程小记</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/12/23/初识LLVM/">初识LLVM</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/12/13/async-await/">async/await</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/11/30/火车运煤问题/">火车运煤问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/11/22/朝花夕拾-Transport-Layer-Security/">朝花夕拾 - Transport Layer Security</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/11/18/macOS-Catalina-升不起系列/">macOS Catalina 升不起系列</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/06/04/wwwdc-2019/">WWDC 2019</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/03/09/InjectIII-Xcode高效神器/">InjectIII-Xcode高效神器</a></li></ul></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2019 <a href="/." rel="nofollow">意涵的博客.</a> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a><a rel="nofollow" target="_blank" href="https://github.com/tufu9441/maupassant-hexo"> Theme</a> by<a rel="nofollow" target="_blank" href="https://github.com/pagecho"> Cho.</a></div></div></div><a class="show" id="rocket" href="#top"></a><script type="text/javascript" src="/js/totop.js?v=0.0.0" async></script><script type="text/javascript" src="//lib.baomitu.com/fancybox/3.5.2/jquery.fancybox.min.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=0.0.0" async></script><link rel="stylesheet" type="text/css" href="//lib.baomitu.com/fancybox/3.5.2/jquery.fancybox.min.css"><script type="text/javascript" src="/js/codeblock-resizer.js?v=0.0.0"></script><script type="text/javascript" src="/js/smartresize.js?v=0.0.0"></script></div></body></html>

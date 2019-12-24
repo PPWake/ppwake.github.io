@@ -1,0 +1,89 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.8.0"><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description" content="我的个人博客"><title>面向对象编程小记 | 意涵的博客</title><link rel="stylesheet" type="text/css" href="/css/style.css?v=0.0.0"><link rel="stylesheet" type="text/css" href="//lib.baomitu.com/normalize/8.0.1/normalize.min.css"><link rel="stylesheet" type="text/css" href="//lib.baomitu.com/pure/1.0.0/pure-min.css"><link rel="stylesheet" type="text/css" href="//lib.baomitu.com/pure/1.0.0/grids-responsive-min.css"><link rel="stylesheet" href="//lib.baomitu.com/font-awesome/4.7.0/css/font-awesome.min.css"><script type="text/javascript" src="//lib.baomitu.com/jquery/3.3.1/jquery.min.js"></script><link rel="icon" mask="" sizes="any" href="/favicon.ico"><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">面向对象编程小记</h1><a id="logo" href="/.">意涵的博客</a><p class="description">记录足迹👣</p></div><div id="nav-menu"><a class="current" href="/."><i class="fa fa-home"> 首页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a></div></div><div class="pure-g" id="layout"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">面向对象编程小记</h1><div class="post-meta">Dec 23, 2019<script src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script><span id="busuanzi_container_page_pv"> | <span id="busuanzi_value_page_pv"></span><span> 阅读</span></span></div><a class="disqus-comment-count" data-disqus-identifier="2019/12/23/面向对象编程小记/" href="/2019/12/23/面向对象编程小记/#disqus_thread"></a><div class="post-content"><h1 id="面向对象编程"><a href="#面向对象编程" class="headerlink" title="面向对象编程"></a>面向对象编程</h1><h2 id="三大特性"><a href="#三大特性" class="headerlink" title="三大特性"></a>三大特性</h2><p>​    封装，继承，多态</p>
+<h2 id="五大原则"><a href="#五大原则" class="headerlink" title="五大原则"></a>五大原则</h2><p>S.O.L.I.D</p>
+<ul>
+<li><p>Single Responsibility Principle 单一职责原则：一个类只有一个职责，高内聚，降低类的改变所带来的影响。</p>
+<p>A.  如何界定单一，什么样的职责才算单一的职责 ？</p>
+<p>Q:  大体上需要符合类名的表意，不能有超出预期的职责。是否需要细分职责，取决于该类的需求变更是否频繁以及该类变更后的影响范围。</p>
+</li>
+<li><p>Open-Closed Principle 开闭原则：一般通过 多态，工厂模式来实现，避免修改引入其他问题。</p>
+</li>
+<li><p>Liskov Substitution Principle 里氏置换原则：子类无副作用置换父类，子类不要出现超出父类预期的行为。例如 正方形 继承 长方形。</p>
+</li>
+<li><p>Interface Segregation Principle 接口隔离原则：不要依赖你不需要的东西，如果存在需要抽离到另外一个接口。</p>
+</li>
+<li><p>Dependency Inversion Principle 依赖倒置原则：高层次模块不应该依赖于低层次模块；他们应该依赖于抽象。抽象不应该依赖于细节；细节依赖于抽象。 </p>
+</li>
+</ul>
+<p>  😊太抽象了，来个 Demo 吧。</p>
+<p>  假设 Person 是上层模块，Bike 是底层模块， Person 依赖于底层模块 Bike。</p>
+  <figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Bike</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">func</span> <span class="title">run</span><span class="params">()</span></span> &#123;</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">"Bike run..."</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Person</span> </span>&#123;   </span><br><span class="line">    <span class="function"><span class="keyword">func</span> <span class="title">travel</span><span class="params">()</span></span> &#123;</span><br><span class="line">        <span class="keyword">let</span> bike = <span class="type">Bike</span>()</span><br><span class="line">        bike.run()</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>  通过接口或者抽象类来封装抽象，实现依赖倒置；</p>
+<p>  Person 依赖抽象的接口 Runnable，而不是具体的 Bike 类。</p>
+  <figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">protocol</span> <span class="title">Runnable</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">func</span> <span class="title">run</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Bike</span>:<span class="title">Runnable</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">func</span> <span class="title">run</span><span class="params">()</span></span> &#123;</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">"Bike run..."</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Person</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">var</span> transportTool:<span class="type">Runnable</span>?</span><br><span class="line">    <span class="function"><span class="keyword">func</span> <span class="title">travel</span><span class="params">()</span></span> &#123;</span><br><span class="line">       <span class="keyword">self</span>.transportTool?.run()</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="23-种设计模式"><a href="#23-种设计模式" class="headerlink" title="23 种设计模式"></a>23 种设计模式</h2><p>总体来说设计模式分为三大类：</p>
+<p>创建型模式，共五种：工厂方法模式、抽象工厂模式、单例模式、建造者模式、原型模式。</p>
+<p>结构型模式，共七种：适配器模式、装饰器模式、代理模式、外观模式、桥接模式、组合模式、享元模式。</p>
+<p>行为型模式，共十一种：策略模式、模板方法模式、观察者模式、迭代子模式、责任链模式、命令模式、备忘录模式、状态模式、访问者模式、中介者模式、解释器模式。</p>
+<h2 id="UML-统一建模语言"><a href="#UML-统一建模语言" class="headerlink" title="UML 统一建模语言"></a>UML 统一建模语言</h2><p>帮助我们梳理流程和类的各种关系</p>
+<ul>
+<li>类图</li>
+<li>序列图</li>
+</ul>
+<h2 id="扩展"><a href="#扩展" class="headerlink" title="扩展"></a>扩展</h2><ol>
+<li><p>面向对象编程的弊端是什么？</p>
+<p><a href="https://www.zhihu.com/question/20275578" target="_blank" rel="noopener">https://www.zhihu.com/question/20275578</a></p>
+<p>提到了 封装 和 归一化的概念，不要为了面向对象而面向对象，在设计对象之前需要先思考，有些问题有更好的解决方案，例如游戏中的角色技能是采用数据库的方式来实现的。这类问题用面向对象的思想来处理，会出现类爆炸，无法维护。</p>
+</li>
+<li><p>编程的首要原则是什么？</p>
+<p>KISS：Keep it simple, stupid</p>
+<p>DRY：Dont Repeat Yourself</p>
+<p><a href="http://mindhacks.cn/2009/03/09/first-principles-of-programming/" target="_blank" rel="noopener">http://mindhacks.cn/2009/03/09/first-principles-of-programming/</a></p>
+</li>
+</ol>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="http://www.importnew.com/10656.html" target="_blank" rel="noopener">SOLID</a></p>
+</div><div class="tags"><a href="/tags/面向对象编程/">面向对象编程</a></div><div class="post-nav"><a class="next" href="/2019/12/23/初识LLVM/"></a></div><div id="disqus_thread"><div class="btn_click_load"><button class="disqus_click_btn">阅读评论（请确保 Disqus 可以正常加载）</button></div><script type="text/javascript">var disqus_config = function () {
+    this.page.url = 'http://yoursite.com/2019/12/23/面向对象编程小记/';
+    this.page.identifier = '2019/12/23/面向对象编程小记/';
+    this.page.title = '面向对象编程小记';
+  };</script><script type="text/javascript" id="disqus-lazy-load-script">$.ajax({
+url: 'https://disqus.com/next/config.json',
+timeout: 2500,
+type: 'GET',
+success: function(){
+  var d = document;
+  var s = d.createElement('script');
+  s.src = '//https-ppwake-github-io.disqus.com/embed.js';
+  s.setAttribute('data-timestamp', + new Date());
+  (d.head || d.body).appendChild(s);
+  $('.disqus_click_btn').css('display', 'none');
+},
+error: function() {
+  $('.disqus_click_btn').css('display', 'block');
+}
+});</script><script type="text/javascript" id="disqus-click-load">$('.btn_click_load').click(() => {  //click to load comments
+    (() => { // DON'T EDIT BELOW THIS LINE
+        var d = document;
+        var s = d.createElement('script');
+        s.src = '//https-ppwake-github-io.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', + new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+    $('.disqus_click_btn').css('display','none');
+});</script><script type="text/javascript" id="disqus-count-script">$(function() {
+     var xhr = new XMLHttpRequest();
+     xhr.open('GET', '//disqus.com/next/config.json', true);
+     xhr.timeout = 2500;
+     xhr.onreadystatechange = function () {
+       if (xhr.readyState === 4 && xhr.status === 200) {
+         $('.post-meta .post-comments-count').show();
+         var s = document.createElement('script');
+         s.id = 'dsq-count-scr';
+         s.src = 'https://https-ppwake-github-io.disqus.com/count.js';
+         s.async = true;
+         (document.head || document.body).appendChild(s);
+       }
+     };
+     xhr.ontimeout = function () { xhr.abort(); };
+     xhr.send(null);
+   });
+</script></div></div></div></div><div class="pure-u-1-4 hidden_mid_and_down"><div id="sidebar"><div class="widget"><form class="search-form" action="//www.google.com/search" method="get" accept-charset="utf-8" target="_blank"><input type="text" name="q" maxlength="20" placeholder="Search"><input type="hidden" name="sitesearch" value="http://yoursite.com"></form></div><div class="widget"><div class="widget-title"><i class="fa fa-folder-o"> 分类</i></div></div><div class="widget"><div class="widget-title"><i class="fa fa-star-o"> 标签</i></div><div class="tagcloud"><a href="/tags/Xcode/" style="font-size: 15px;">Xcode</a> <a href="/tags/async-await/" style="font-size: 15px;">async/await</a> <a href="/tags/wwdc-swift/" style="font-size: 15px;">wwdc swift</a> <a href="/tags/面试题/" style="font-size: 15px;">面试题</a> <a href="/tags/TLS/" style="font-size: 15px;">TLS</a> <a href="/tags/面向对象编程/" style="font-size: 15px;">面向对象编程</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-file-o"> 最近文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2019/12/23/面向对象编程小记/">面向对象编程小记</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/12/23/初识LLVM/">初识LLVM</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/12/13/async-await/">async/await</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/11/30/火车运煤问题/">火车运煤问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/11/22/朝花夕拾-Transport-Layer-Security/">朝花夕拾 - Transport Layer Security</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/11/18/macOS-Catalina-升不起系列/">macOS Catalina 升不起系列</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/06/04/wwwdc-2019/">WWDC 2019</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/03/09/InjectIII-Xcode高效神器/">InjectIII-Xcode高效神器</a></li></ul></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2019 <a href="/." rel="nofollow">意涵的博客.</a> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a><a rel="nofollow" target="_blank" href="https://github.com/tufu9441/maupassant-hexo"> Theme</a> by<a rel="nofollow" target="_blank" href="https://github.com/pagecho"> Cho.</a></div></div></div><a class="show" id="rocket" href="#top"></a><script type="text/javascript" src="/js/totop.js?v=0.0.0" async></script><script type="text/javascript" src="//lib.baomitu.com/fancybox/3.5.2/jquery.fancybox.min.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=0.0.0" async></script><link rel="stylesheet" type="text/css" href="//lib.baomitu.com/fancybox/3.5.2/jquery.fancybox.min.css"><script type="text/javascript" src="/js/codeblock-resizer.js?v=0.0.0"></script><script type="text/javascript" src="/js/smartresize.js?v=0.0.0"></script></div></body></html>
