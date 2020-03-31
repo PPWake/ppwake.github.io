@@ -1,0 +1,96 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.8.0"><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description" content="我的个人博客"><title>在 LLVM 10.0 下编译 Hikari | 意涵的博客</title><link rel="stylesheet" type="text/css" href="/css/style.css?v=0.0.0"><link rel="stylesheet" type="text/css" href="//lib.baomitu.com/normalize/8.0.1/normalize.min.css"><link rel="stylesheet" type="text/css" href="//lib.baomitu.com/pure/1.0.0/pure-min.css"><link rel="stylesheet" type="text/css" href="//lib.baomitu.com/pure/1.0.0/grids-responsive-min.css"><link rel="stylesheet" href="//lib.baomitu.com/font-awesome/4.7.0/css/font-awesome.min.css"><script type="text/javascript" src="//lib.baomitu.com/jquery/3.3.1/jquery.min.js"></script><link rel="icon" mask="" sizes="any" href="/favicon.ico"><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">在 LLVM 10.0 下编译 Hikari</h1><a id="logo" href="/.">意涵的博客</a><p class="description">记录足迹👣</p></div><div id="nav-menu"><a class="current" href="/."><i class="fa fa-home"> 首页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a></div></div><div class="pure-g" id="layout"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">在 LLVM 10.0 下编译 Hikari</h1><div class="post-meta">Mar 31, 2020<script src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script><span id="busuanzi_container_page_pv"> | <span id="busuanzi_value_page_pv"></span><span> 阅读</span></span></div><a class="disqus-comment-count" data-disqus-identifier="2020/03/31/在LLVM-10-0-下编译Hikari/" href="/2020/03/31/在LLVM-10-0-下编译Hikari/#disqus_thread"></a><div class="post-content"><h4 id="0x1-预备"><a href="#0x1-预备" class="headerlink" title="0x1. 预备"></a>0x1. 预备</h4><ol>
+<li><p>前置条件</p>
+<p>cmake, python (可以通过 homebrew 来安装), Xcode</p>
+<p>详细要求参考 <a href="https://llvm.org/docs/GettingStarted.html#requirements" target="_blank" rel="noopener">Getting Started with the LLVM System - Requirements</a></p>
+</li>
+<li><p>检出 LLVM 工程</p>
+<figure class="highlight crmsh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">`git <span class="keyword">clone</span> <span class="title">--depth</span>=<span class="number">1</span> https://github.com/llvm/llvm-project.git`</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>下载解压 Hikari 的 core 和 header</p>
+<p>Core：基于 pass 的 C++ 混淆代码</p>
+<p><a href="https://github.com/HikariObfuscator/Core" target="_blank" rel="noopener">https://github.com/HikariObfuscator/Core</a></p>
+<p>header：混淆代码的头文件</p>
+<p><a href="https://github.com/HikariObfuscator/Headers" target="_blank" rel="noopener">https://github.com/HikariObfuscator/Headers</a></p>
+</li>
+</ol>
+<p>4， 复位 core 和 header</p>
+<ul>
+<li><p>复位 core</p>
+<ol>
+<li><p>将 core 代码复制到 llvm/lib/Transforms/Obfuscation 文件夹 (需要新建) 中</p>
+</li>
+<li><p>其他修改</p>
+<p>修改 Transforms 目录下的 CMakeLists.txt，添加 “add_subdirectory(Obfuscation)”</p>
+<figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">add_subdirectory</span>(Utils)</span><br><span class="line"><span class="keyword">add_subdirectory</span>(Instrumentation)</span><br><span class="line"><span class="keyword">add_subdirectory</span>(AggressiveInstCombine)</span><br><span class="line"><span class="keyword">add_subdirectory</span>(InstCombine)</span><br><span class="line"><span class="keyword">add_subdirectory</span>(Scalar)</span><br><span class="line"><span class="keyword">add_subdirectory</span>(IPO)</span><br><span class="line"><span class="keyword">add_subdirectory</span>(Vectorize)</span><br><span class="line"><span class="keyword">add_subdirectory</span>(Hello)</span><br><span class="line"><span class="keyword">add_subdirectory</span>(ObjCARC)</span><br><span class="line"><span class="keyword">add_subdirectory</span>(Coroutines)</span><br><span class="line"><span class="keyword">add_subdirectory</span>(Obfuscation)</span><br></pre></td></tr></table></figure>
+<p>修改 Trasforms 目录下的 LLVMBuild.txt, 在 subdirectories 字段后添加 Obfuscation</p>
+<figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">[common]</span><br><span class="line">subdirectories = AggressiveInstCombine Coroutines IPO InstCombine Instrumentation Scalar Utils Vectorize ObjCARC Obfuscation</span><br><span class="line"></span><br><span class="line">[component_0]</span><br><span class="line">type = Group</span><br><span class="line">name = Transforms</span><br><span class="line">parent = Libraries</span><br></pre></td></tr></table></figure>
+<p>修改 Trasforms 目录下 IPO 文件夹中的 LLVMBuild.txt, 在 required_libraries 字段后添加 Obfuscation</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">[component_0]</span></span><br><span class="line"><span class="attr">type</span> = Library</span><br><span class="line"><span class="attr">name</span> = IPO</span><br><span class="line"><span class="attr">parent</span> = Transforms</span><br><span class="line"><span class="attr">library_name</span> = ipo</span><br><span class="line"><span class="attr">required_libraries</span> = AggressiveInstCombine Analysis BitReader BitWriter Core InstCombine IRReader Linker Object ProfileData Scalar Support TransformUtils Vectorize Instrumentation Obfuscation</span><br></pre></td></tr></table></figure>
+<p>修改 Trasforms 目录下 IPO 目录中的 PassManagerBuilder.cpp，增加如下代码：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 新增头文件</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"llvm/Transforms/Obfuscation/Obfuscation.h"</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">// populateModulePassManager 新增 MPM.add(createObfuscationPass());</span></span><br><span class="line"><span class="comment">// 将 obfuscation 加入到 passManager 中</span></span><br><span class="line"><span class="keyword">void</span> PassManagerBuilder::populateModulePassManager(</span><br><span class="line">		legacy::PassManagerBase &amp;MPM) &#123;</span><br><span class="line">		MPM.add(createObfuscationPass());</span><br><span class="line">		....</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在 llvm/tools/opt/opt.cpp 注册 Obfuscation</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv)</span> </span>&#123;</span><br><span class="line">  initializeHardwareLoopsPass(Registry);</span><br><span class="line">  initializeObfuscationPass(Registry);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+</li>
+<li><p>复位 header</p>
+<ol>
+<li><p>将 header 中所有的文件复制到 llvm/include/llvm/Transforms/Obfuscation 中  (需要新建) </p>
+</li>
+<li><p>其他修改</p>
+<p>修改 llvm/InitializePasses.h，增加方法声明</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">initializeXRayInstrumentationPass</span><span class="params">(PassRegistry&amp;)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">initializeObfuscationPass</span><span class="params">(PassRegistry&amp;)</span></span>;</span><br></pre></td></tr></table></figure>
+<p>修改 llvm/LinkAllPasses.h, 增加头文件以及方法声明</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"llvm/Transforms/Obfuscation/Obfuscation.h"</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">namespace</span> &#123;</span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">ForcePassLinking</span> &#123;</span></span><br><span class="line">		ForcePassLinking() &#123;</span><br><span class="line">			(<span class="keyword">void</span>) llvm::createObfuscationPass();</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+</li>
+</ul>
+<h3 id="编译-xcode-工具链"><a href="#编译-xcode-工具链" class="headerlink" title="编译 xcode 工具链"></a>编译 xcode 工具链</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">cd llvm-project</span><br><span class="line"><span class="meta">#</span><span class="bash"> 随意命名</span></span><br><span class="line">mkdir build_with_ninja</span><br><span class="line">cd build_with_ninja</span><br><span class="line">cmake -DCMAKE_BUILD_TYPE=MinSizeRel -DLLVM_ENABLE_ASSERTIONS=ON -DLLVM_CREATE_XCODE_TOOLCHAIN=on -DCMAKE_INSTALL_PREFIX=~/Library/Developer/ -DLLVM_ENABLE_PROJECTS="clang;clang-tools-extra;compiler-rt" -G Ninja ../llvm</span><br><span class="line">ninja</span><br><span class="line">ninja install-xcode-toolchain</span><br></pre></td></tr></table></figure>
+<p>编译完后 toolchain 在 ~/Library/Developer/ 目录中.</p>
+</div><div class="tags"><a href="/tags/llvm，Hikari/">llvm，Hikari</a></div><div class="post-nav"><a class="next" href="/2020/02/16/重签小记/">重签小记</a></div><div id="disqus_thread"><div class="btn_click_load"><button class="disqus_click_btn">阅读评论（请确保 Disqus 可以正常加载）</button></div><script type="text/javascript">var disqus_config = function () {
+    this.page.url = 'http://yoursite.com/2020/03/31/在LLVM-10-0-下编译Hikari/';
+    this.page.identifier = '2020/03/31/在LLVM-10-0-下编译Hikari/';
+    this.page.title = '在 LLVM 10.0 下编译 Hikari';
+  };</script><script type="text/javascript" id="disqus-lazy-load-script">$.ajax({
+url: 'https://disqus.com/next/config.json',
+timeout: 2500,
+type: 'GET',
+success: function(){
+  var d = document;
+  var s = d.createElement('script');
+  s.src = '//https-ppwake-github-io.disqus.com/embed.js';
+  s.setAttribute('data-timestamp', + new Date());
+  (d.head || d.body).appendChild(s);
+  $('.disqus_click_btn').css('display', 'none');
+},
+error: function() {
+  $('.disqus_click_btn').css('display', 'block');
+}
+});</script><script type="text/javascript" id="disqus-click-load">$('.btn_click_load').click(() => {  //click to load comments
+    (() => { // DON'T EDIT BELOW THIS LINE
+        var d = document;
+        var s = d.createElement('script');
+        s.src = '//https-ppwake-github-io.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', + new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+    $('.disqus_click_btn').css('display','none');
+});</script><script type="text/javascript" id="disqus-count-script">$(function() {
+     var xhr = new XMLHttpRequest();
+     xhr.open('GET', '//disqus.com/next/config.json', true);
+     xhr.timeout = 2500;
+     xhr.onreadystatechange = function () {
+       if (xhr.readyState === 4 && xhr.status === 200) {
+         $('.post-meta .post-comments-count').show();
+         var s = document.createElement('script');
+         s.id = 'dsq-count-scr';
+         s.src = 'https://https-ppwake-github-io.disqus.com/count.js';
+         s.async = true;
+         (document.head || document.body).appendChild(s);
+       }
+     };
+     xhr.ontimeout = function () { xhr.abort(); };
+     xhr.send(null);
+   });
+</script></div></div></div></div><div class="pure-u-1-4 hidden_mid_and_down"><div id="sidebar"><div class="widget"><form class="search-form" action="//www.google.com/search" method="get" accept-charset="utf-8" target="_blank"><input type="text" name="q" maxlength="20" placeholder="Search"><input type="hidden" name="sitesearch" value="http://yoursite.com"></form></div><div class="widget"><div class="widget-title"><i class="fa fa-folder-o"> 分类</i></div></div><div class="widget"><div class="widget-title"><i class="fa fa-star-o"> 标签</i></div><div class="tagcloud"><a href="/tags/Xcode/" style="font-size: 15px;">Xcode</a> <a href="/tags/wwdc-swift/" style="font-size: 15px;">wwdc swift</a> <a href="/tags/llvm，Hikari/" style="font-size: 15px;">llvm，Hikari</a> <a href="/tags/TLS/" style="font-size: 15px;">TLS</a> <a href="/tags/面试题/" style="font-size: 15px;">面试题</a> <a href="/tags/面向对象编程/" style="font-size: 15px;">面向对象编程</a> <a href="/tags/LLVM/" style="font-size: 15px;">LLVM</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-file-o"> 最近文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2020/03/31/在LLVM-10-0-下编译Hikari/">在 LLVM 10.0 下编译 Hikari</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/02/16/重签小记/">重签小记</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/12/23/面向对象编程小记/">面向对象编程小记</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/12/23/初识LLVM/">初识 LLVM</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/11/30/火车运煤问题/">火车运煤问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/11/22/朝花夕拾-Transport-Layer-Security/">朝花夕拾 - Transport Layer Security</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/11/18/macOS-Catalina-升不起系列/">macOS Catalina 升不起系列</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/06/04/wwwdc-2019/">WWDC 2019</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/03/09/InjectIII-Xcode高效神器/">InjectIII-Xcode高效神器</a></li></ul></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2020 <a href="/." rel="nofollow">意涵的博客.</a> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a><a rel="nofollow" target="_blank" href="https://github.com/tufu9441/maupassant-hexo"> Theme</a> by<a rel="nofollow" target="_blank" href="https://github.com/pagecho"> Cho.</a></div></div></div><a class="show" id="rocket" href="#top"></a><script type="text/javascript" src="/js/totop.js?v=0.0.0" async></script><script type="text/javascript" src="//lib.baomitu.com/fancybox/3.5.2/jquery.fancybox.min.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=0.0.0" async></script><link rel="stylesheet" type="text/css" href="//lib.baomitu.com/fancybox/3.5.2/jquery.fancybox.min.css"><script type="text/javascript" src="/js/codeblock-resizer.js?v=0.0.0"></script><script type="text/javascript" src="/js/smartresize.js?v=0.0.0"></script></div></body></html>
