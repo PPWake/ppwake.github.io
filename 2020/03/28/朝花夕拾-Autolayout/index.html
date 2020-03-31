@@ -1,0 +1,164 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.8.0"><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description" content="我的个人博客"><title>朝花夕拾- Autolayout | 意涵的博客</title><link rel="stylesheet" type="text/css" href="/css/style.css?v=0.0.0"><link rel="stylesheet" type="text/css" href="//lib.baomitu.com/normalize/8.0.1/normalize.min.css"><link rel="stylesheet" type="text/css" href="//lib.baomitu.com/pure/1.0.0/pure-min.css"><link rel="stylesheet" type="text/css" href="//lib.baomitu.com/pure/1.0.0/grids-responsive-min.css"><link rel="stylesheet" href="//lib.baomitu.com/font-awesome/4.7.0/css/font-awesome.min.css"><script type="text/javascript" src="//lib.baomitu.com/jquery/3.3.1/jquery.min.js"></script><link rel="icon" mask="" sizes="any" href="/favicon.ico"><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">朝花夕拾- Autolayout</h1><a id="logo" href="/.">意涵的博客</a><p class="description">记录足迹👣</p></div><div id="nav-menu"><a class="current" href="/."><i class="fa fa-home"> 首页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a></div></div><div class="pure-g" id="layout"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">朝花夕拾- Autolayout</h1><div class="post-meta">Mar 28, 2020<script src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script><span id="busuanzi_container_page_pv"> | <span id="busuanzi_value_page_pv"></span><span> 阅读</span></span></div><a class="disqus-comment-count" data-disqus-identifier="2020/03/28/朝花夕拾-Autolayout/" href="/2020/03/28/朝花夕拾-Autolayout/#disqus_thread"></a><div class="post-content"><p>Autolayout 是由一系列线性方程组成，方程格式如下：</p>
+<blockquote>
+<p>item1.attribute [=, &gt;=, &lt;=] item2.attribute * Multiplier + contant</p>
+</blockquote>
+<h4 id="属性"><a href="#属性" class="headerlink" title="属性"></a>属性</h4><ol>
+<li>top, bottom, left, right, leading, trailing, centerx, centery</li>
+<li>margin 系列(top, bottom, left, right, leading, trailing, centerx, centery </li>
+<li>baseline, lastbaseline, firstbaseline</li>
+<li>notAnAttribute</li>
+</ol>
+<h4 id="优先级"><a href="#优先级" class="headerlink" title="优先级"></a>优先级</h4><p>范围：1-1000</p>
+<ol>
+<li>1000 必须满足(required), 如果不满足会 crash</li>
+<li>其他为可选(option)</li>
+</ol>
+<h4 id="内在内容大小-intrinsic-content-size"><a href="#内在内容大小-intrinsic-content-size" class="headerlink" title="内在内容大小 (intrinsic content size)"></a>内在内容大小 (intrinsic content size)</h4><p>拥有内在内容大小的 view，布局引擎会自动生成约束：</p>
+<ul>
+<li>labels, buttons, switches, textfields: 定义长度和宽度</li>
+<li>sliders: 定义长度</li>
+<li>textview, imageview: 根据内容大小变化</li>
+<li>自定义，重写 intrinsicContentSize 方法；</li>
+</ul>
+<p>CHCR</p>
+<ul>
+<li>compression resistance：保证 view 不小于某个足够显示完整内容的值，默认优先级 750</li>
+<li>content hugging：保证 view 不大于某个值，默认优先级 250</li>
+</ul>
+<p>CHCR Tips</p>
+<ol>
+<li><p>拉伸 View 时，当所有 view 的 content hugging 相同时，布局引擎无法区分需要拉伸哪个 view<br>例如：界面有一个 label 和 textfield，希望 label 不动，textfield 拉伸，可以设置 label 的 conent hugging 大于 textfield 的，例如 251，这也是系统的默认行为；</p>
+</li>
+<li><p>如果需要保持 intrinsic content size 不变，可以设置为 999 来防止拉伸和压缩。</p>
+</li>
+</ol>
+<h4 id="Fitting-size"><a href="#Fitting-size" class="headerlink" title="Fitting size"></a>Fitting size</h4><p>fitting size 是布局引擎根据约束输出的当前界面展示的尺寸大小；而 intrinsic content size 是输入，autolayout 会根据 intrinsic content size 生成约束；<br>例如：UIStackView 没有 intristic content size，但可以通过计算 fitting size 来模拟 intristic content size 的特性<br>注意：设置 stackview 的 CHCR 无效果</p>
+<h4 id="Top-and-bottom-layout-guides"><a href="#Top-and-bottom-layout-guides" class="headerlink" title="Top and bottom layout guides"></a>Top and bottom layout guides</h4><ul>
+<li>iOS 7 透明 bar 引入的特性</li>
+<li>UILayoutsupport protocol height 属性</li>
+<li>Top layout guide：顶部到 bar 底部</li>
+<li>Bottom layout guide: 底部到 bar 的顶部</li>
+</ul>
+<p>注：iOS 11 后使用 safearea 代替</p>
+<h4 id="layoutMargins"><a href="#layoutMargins" class="headerlink" title="layoutMargins"></a>layoutMargins</h4><ol>
+<li>layoutMarginsGuide</li>
+<li>layoutMarginset: UIEdgeInsets，手动设置</li>
+<li>preservesSuperviewLayoutMargins，defaut no, 子 view 是否保留父 view 的 margins</li>
+<li>subview 与 superview 四周的边距为 20 point， subview 之间为 8 point。</li>
+<li>viewcontroller’s root-view: Top bottom:0 left,right:16 or 20 point</li>
+<li>layoutMarginsDidChange 边距改变的回调</li>
+</ol>
+<h4 id="readableContentGuide"><a href="#readableContentGuide" class="headerlink" title="readableContentGuide"></a>readableContentGuide</h4><p>方便大屏阅读（用户不用移动头), 如果内容是文本控件可以用 readableContentGuide 来代替 margins</p>
+<p>注意：<br>在 root view 的 xib 中开启 follow readable width 无效，需要再套一个 view<br>DEMO：<br><figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> guide = view.readableContentGuide</span><br><span class="line">guide.leadingAnchor.constraintEqualToAnchor(textLabel.leadingAnchor).active = <span class="literal">true</span></span><br><span class="line">guide.trailingAnchor.constraintEqualToAnchor(textLabel.trailingAnchor).active = <span class="literal">true</span></span><br></pre></td></tr></table></figure></p>
+<h4 id="Semantic-Content"><a href="#Semantic-Content" class="headerlink" title="Semantic Content"></a>Semantic Content</h4><p>不同语言环境切换时，例如从左到右切换到从右到左，界面元素会跟着反转，为防止某些特殊的控件反转，例如带箭头的 button，可以通过设置semanticContentAttribute 来控制如何反转</p>
+<ol>
+<li>unspecified (default, flip)</li>
+<li>playback (not flip)</li>
+<li>spatial (not flip)</li>
+<li>forceLeftToRight</li>
+<li>forceRightToLeft</li>
+<li>forceLeftToRight</li>
+</ol>
+<h4 id="UILayoutGuide"><a href="#UILayoutGuide" class="headerlink" title="UILayoutGuide"></a>UILayoutGuide</h4><p>UILayoutGuide 是一个矩形约束，可以用来代替 dammy view，例如：</p>
+<ol>
+<li>当作间隔</li>
+<li>当作容器来包装子 view</li>
+</ol>
+<p>使用说明：</p>
+<ol>
+<li>创建 layoutguide</li>
+<li>addLayoutGuide: to view</li>
+<li>通过 autolayout 来定义位置和大小</li>
+</ol>
+<p>DEMO：间距相同的空格<br><figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> space1 = <span class="type">UILayoutGuide</span>()</span><br><span class="line">view.addLayoutGuide(space1)</span><br><span class="line"> </span><br><span class="line"><span class="keyword">let</span> space2 = <span class="type">UILayoutGuide</span>()</span><br><span class="line">view.addLayoutGuide(space2)</span><br><span class="line"> </span><br><span class="line">space1.widthAnchor.constraintEqualToAnchor(space2.widthAnchor).active = <span class="literal">true</span></span><br><span class="line">saveButton.trailingAnchor.constraintEqualToAnchor(space1.leadingAnchor).active = <span class="literal">true</span></span><br><span class="line">cancelButton.leadingAnchor.constraintEqualToAnchor(space1.trailingAnchor).active = <span class="literal">true</span></span><br><span class="line">cancelButton.trailingAnchor.constraintEqualToAnchor(space2.leadingAnchor).active = <span class="literal">true</span></span><br><span class="line">clearButton.leadingAnchor.constraintEqualToAnchor(space2.trailingAnchor).active = <span class="literal">true</span></span><br></pre></td></tr></table></figure></p>
+<h4 id="Rules-of-Thumb"><a href="#Rules-of-Thumb" class="headerlink" title="Rules of Thumb"></a>Rules of Thumb</h4><ol>
+<li>不要使用 frame, bounds, center</li>
+<li>多使用 stack view</li>
+<li>避免使用固定的长度和宽度，设置固定的 size 丧失了适配的灵活性，可以用最小，最大 size 来做限定</li>
+<li>手动添加约束时，需要设置 translatesAutoresizingMaskIntoConstraints 为 false；</li>
+</ol>
+<h4 id="生命周期"><a href="#生命周期" class="headerlink" title="生命周期"></a>生命周期</h4><p>Deferred Layout Pass<br>调用 setNeedLayout 或者 setNeedsUpdateConstraints 来触发，Deferred Layout Pass 可以分解为如下两个 pass：</p>
+<ol>
+<li>UpdatePass: updateViewConstraints(viewcontroller) - updateConstraints(view)</li>
+<li>LayoutPass: viewWillLayoutSubviews(vc) - layoutSubviews(view)</li>
+</ol>
+<h4 id="调试"><a href="#调试" class="headerlink" title="调试"></a>调试</h4><p>OC 版本：<br><figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">po [self<span class="selector-class">.view</span> _autolayoutTrace]</span><br></pre></td></tr></table></figure></p>
+<p>swift 版本：<br><figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">po  <span class="keyword">self</span>.view.valueForKey(<span class="string">"_autolayoutTrace"</span>)</span><br></pre></td></tr></table></figure></p>
+<h4 id="tableview-cell-自适应高度"><a href="#tableview-cell-自适应高度" class="headerlink" title="tableview cell 自适应高度"></a>tableview cell 自适应高度</h4><ol>
+<li><p>开启自适应高度</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">tableView.estimatedRowHeight = <span class="number">85.0</span></span><br><span class="line">tableView.rowHeight = <span class="type">UITableViewAutomaticDimension</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>cell 的内容使用自动布局</p>
+</li>
+</ol>
+<h4 id="iOS-11-新增"><a href="#iOS-11-新增" class="headerlink" title="iOS 11 新增"></a>iOS 11 新增</h4><h5 id="Margins"><a href="#Margins" class="headerlink" title="Margins"></a>Margins</h5><ol>
+<li>directionalLayoutMargins，符合语言的 marigin，例如从右到左的语言</li>
+<li>systemMinimumLayoutMargins UIKit 有一个默认最小的边距，directionalLayoutMargins 有可能小于这个边距，systemMinimum 则选择最小的</li>
+<li>viewRespectsSystemMinimumLayoutMargins，defaut yes，控制 systemMinimumLayoutMargins</li>
+</ol>
+<h5 id="SafeArea"><a href="#SafeArea" class="headerlink" title="SafeArea"></a>SafeArea</h5><p>iOS 11 引入的 UIView 属性，也可以在 iOS 9 使用，<br>主要属性：</p>
+<ol>
+<li>safeAreaLayoutGuide，layout 使用</li>
+<li>safeAreaInsets，手动设置使用</li>
+<li>additionalSafeAreaInsets 用来给容器的子 view 设置额外的安全区域，例如 navigationbar 的 bar 遮挡区域 或者 给自定义容器设置安全内容区</li>
+<li>safeAreaInsetsDidChange</li>
+<li>insetsLayoutMarginsFromSafeArea margin 是否和 safearea 同步</li>
+</ol>
+<h5 id="UIScrollView"><a href="#UIScrollView" class="headerlink" title="UIScrollView"></a>UIScrollView</h5><p>新增 frameLayoutGuide，contentLayoutGuide 来简化 UIScrollView 的布局</p>
+<p>frameLayoutguide: Scroll View 的 Frame。<br>contentLayoutGuide: 决定 Scroll View 的 content size。</p>
+<h4 id="官网文档摘记"><a href="#官网文档摘记" class="headerlink" title="官网文档摘记"></a>官网文档摘记</h4><p><a href="https://developer.apple.com/library/archive/technotes/tn2154/_index.html" target="_blank" rel="noopener">UIScrollView And Autolayout</a></p>
+<blockquote>
+<p>In general, Auto Layout considers the top, left, bottom, and right edges of a view to be the visible edges. That is, if you pin a view to the left edge of its superview, you’re really pinning it to the minimum x-value of the superview’s bounds. Changing the bounds origin of the superview does not change the position of the view.</p>
+</blockquote>
+<p>subview 的合成的位置受 superview‘s bounds 的 origin 影响，公式为：</p>
+<blockquote>
+<p>x = subview.origin.x - superview.bounds.origin.x<br>y = subview.origin.y - superview.bounds.origin.y</p>
+</blockquote>
+<p>而 Autolayout 约束的就是合成后的位置，所以不受 bounds origin 的影响。</p>
+<h4 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h4><p><a href="https://developer.apple.com/library/archive/documentation/UserExperience/Conceptual/AutolayoutPG/index.html#//apple_ref/doc/uid/TP40010853-CH7-SW1" target="_blank" rel="noopener">Auto Layout Guide</a><br><a href="https://developer.apple.com/library/archive/technotes/tn2154/_index.html" target="_blank" rel="noopener">UIScrollView And Autolayout</a></p>
+</div><div class="tags"><a href="/tags/AutoLayout/">AutoLayout</a></div><div class="post-nav"><a class="pre" href="/2020/03/31/在LLVM-10-0-下编译Hikari/">在 LLVM 10.0 下编译 Hikari</a><a class="next" href="/2020/02/16/重签小记/">重签小记</a></div><div id="disqus_thread"><div class="btn_click_load"><button class="disqus_click_btn">阅读评论（请确保 Disqus 可以正常加载）</button></div><script type="text/javascript">var disqus_config = function () {
+    this.page.url = 'http://yoursite.com/2020/03/28/朝花夕拾-Autolayout/';
+    this.page.identifier = '2020/03/28/朝花夕拾-Autolayout/';
+    this.page.title = '朝花夕拾- Autolayout';
+  };</script><script type="text/javascript" id="disqus-lazy-load-script">$.ajax({
+url: 'https://disqus.com/next/config.json',
+timeout: 2500,
+type: 'GET',
+success: function(){
+  var d = document;
+  var s = d.createElement('script');
+  s.src = '//https-ppwake-github-io.disqus.com/embed.js';
+  s.setAttribute('data-timestamp', + new Date());
+  (d.head || d.body).appendChild(s);
+  $('.disqus_click_btn').css('display', 'none');
+},
+error: function() {
+  $('.disqus_click_btn').css('display', 'block');
+}
+});</script><script type="text/javascript" id="disqus-click-load">$('.btn_click_load').click(() => {  //click to load comments
+    (() => { // DON'T EDIT BELOW THIS LINE
+        var d = document;
+        var s = d.createElement('script');
+        s.src = '//https-ppwake-github-io.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', + new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+    $('.disqus_click_btn').css('display','none');
+});</script><script type="text/javascript" id="disqus-count-script">$(function() {
+     var xhr = new XMLHttpRequest();
+     xhr.open('GET', '//disqus.com/next/config.json', true);
+     xhr.timeout = 2500;
+     xhr.onreadystatechange = function () {
+       if (xhr.readyState === 4 && xhr.status === 200) {
+         $('.post-meta .post-comments-count').show();
+         var s = document.createElement('script');
+         s.id = 'dsq-count-scr';
+         s.src = 'https://https-ppwake-github-io.disqus.com/count.js';
+         s.async = true;
+         (document.head || document.body).appendChild(s);
+       }
+     };
+     xhr.ontimeout = function () { xhr.abort(); };
+     xhr.send(null);
+   });
+</script></div></div></div></div><div class="pure-u-1-4 hidden_mid_and_down"><div id="sidebar"><div class="widget"><form class="search-form" action="//www.google.com/search" method="get" accept-charset="utf-8" target="_blank"><input type="text" name="q" maxlength="20" placeholder="Search"><input type="hidden" name="sitesearch" value="http://yoursite.com"></form></div><div class="widget"><div class="widget-title"><i class="fa fa-folder-o"> 分类</i></div></div><div class="widget"><div class="widget-title"><i class="fa fa-star-o"> 标签</i></div><div class="tagcloud"><a href="/tags/Xcode/" style="font-size: 15px;">Xcode</a> <a href="/tags/wwdc-swift/" style="font-size: 15px;">wwdc swift</a> <a href="/tags/llvm，Hikari/" style="font-size: 15px;">llvm，Hikari</a> <a href="/tags/AutoLayout/" style="font-size: 15px;">AutoLayout</a> <a href="/tags/TLS/" style="font-size: 15px;">TLS</a> <a href="/tags/面试题/" style="font-size: 15px;">面试题</a> <a href="/tags/面向对象编程/" style="font-size: 15px;">面向对象编程</a> <a href="/tags/LLVM/" style="font-size: 15px;">LLVM</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-file-o"> 最近文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2020/03/31/在LLVM-10-0-下编译Hikari/">在 LLVM 10.0 下编译 Hikari</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/03/28/朝花夕拾-Autolayout/">朝花夕拾- Autolayout</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/02/16/重签小记/">重签小记</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/12/23/面向对象编程小记/">面向对象编程小记</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/12/23/初识LLVM/">初识 LLVM</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/11/30/火车运煤问题/">火车运煤问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/11/22/朝花夕拾-Transport-Layer-Security/">朝花夕拾 - Transport Layer Security</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/11/18/macOS-Catalina-升不起系列/">macOS Catalina 升不起系列</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/06/04/wwwdc-2019/">WWDC 2019</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/03/09/InjectIII-Xcode高效神器/">InjectIII-Xcode高效神器</a></li></ul></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2020 <a href="/." rel="nofollow">意涵的博客.</a> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a><a rel="nofollow" target="_blank" href="https://github.com/tufu9441/maupassant-hexo"> Theme</a> by<a rel="nofollow" target="_blank" href="https://github.com/pagecho"> Cho.</a></div></div></div><a class="show" id="rocket" href="#top"></a><script type="text/javascript" src="/js/totop.js?v=0.0.0" async></script><script type="text/javascript" src="//lib.baomitu.com/fancybox/3.5.2/jquery.fancybox.min.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=0.0.0" async></script><link rel="stylesheet" type="text/css" href="//lib.baomitu.com/fancybox/3.5.2/jquery.fancybox.min.css"><script type="text/javascript" src="/js/codeblock-resizer.js?v=0.0.0"></script><script type="text/javascript" src="/js/smartresize.js?v=0.0.0"></script></div></body></html>
